@@ -21,15 +21,21 @@ jobs:
 
       - name: Build
         run: dotnet build --configuration Release --no-restore
-
+      
+      - name: Prepare package version
+        run: |
+          VERSION=${GITHUB_REF_NAME#v}
+          echo Version: $VERSION
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          
       - name: Pack NuGet package
         run: |
           dotnet pack \
           --configuration Release \
           --no-build \
           --output nuget \
-          --property:Version=${{ github.ref_name }}
-
+          --property:Version=${VERSION}
+      
       - name: Push to NuGet
         run: |
           dotnet nuget push nuget/*.nupkg \
