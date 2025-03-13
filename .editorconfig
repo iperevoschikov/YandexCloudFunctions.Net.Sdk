@@ -1,0 +1,5 @@
+
+[*]
+
+# ReSharper properties
+resharper_place_accessorholder_attribute_on_same_line = false
