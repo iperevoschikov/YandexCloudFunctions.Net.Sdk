@@ -52,5 +52,7 @@ public abstract class BaseFunctionHandler : YcFunction<FunctionHandlerRequest, F
         }
     }
 
-    protected abstract void ConfigureServices(IServiceCollection serviceCollection);
+    protected virtual void ConfigureServices(IServiceCollection serviceCollection)
+    {
+    }
 }
