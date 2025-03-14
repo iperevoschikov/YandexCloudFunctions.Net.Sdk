@@ -35,10 +35,9 @@ jobs:
           --no-build \
           --output nuget \
           --property:Version=${VERSION}
-      
-      - name: Push to NuGet
+
+      - name: Push to GitHub Packages
         run: |
           dotnet nuget push nuget/*.nupkg \
-          --api-key ${{ secrets.NUGET_API_KEY }} \
-          --source https://api.nuget.org/v3/index.json \
+          --api-key ${{ secrets.GITHUB_TOKEN }} \
           --skip-duplicate

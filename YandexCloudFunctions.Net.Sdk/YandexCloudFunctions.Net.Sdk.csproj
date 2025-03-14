@@ -2,6 +2,7 @@
 
     <PropertyGroup>
         <PackageId>IPerevoschikov.YandexCloudFunctions.Net.Sdk</PackageId>
+        <RepositoryUrl>https://github.com/iperevoschikov/YandexCloudFunctions.Net.Sdk</RepositoryUrl>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
