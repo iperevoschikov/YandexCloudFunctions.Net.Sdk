@@ -39,5 +39,5 @@ jobs:
       - name: Push to GitHub Packages
         run: |
           dotnet nuget push nuget/*.nupkg \
-          --api-key ${{ secrets.GITHUB_TOKEN }} \
+          --api-key ${{ secrets.GH_ACCESS_TOKEN }} \
           --skip-duplicate

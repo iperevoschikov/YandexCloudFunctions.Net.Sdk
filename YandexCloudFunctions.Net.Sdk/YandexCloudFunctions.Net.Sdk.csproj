@@ -1,9 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <PackageId>IPerevoschikov.YandexCloudFunctions.Net.Sdk</PackageId>
+        <PackageId>YandexCloudFunctions.Net.Sdk</PackageId>
         <RepositoryUrl>https://github.com/iperevoschikov/YandexCloudFunctions.Net.Sdk</RepositoryUrl>
-        <PackageReadmeFile>README.md</PackageReadmeFile>
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
@@ -12,10 +11,6 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.3"/>
         <PackageReference Include="Yandex.Cloud.SDK" Version="1.4.1"/>
-    </ItemGroup>
-
-    <ItemGroup>
-        <None Include="..\README.md" Pack="true" PackagePath="\"/>
     </ItemGroup>
 
 </Project>
