@@ -53,6 +53,9 @@ jobs:
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: "8.x"
+      
+      - name: Authenticate with GitHub Packages
+        run: dotnet nuget add source "https://nuget.pkg.github.com/iperevoschikov/index.json" --name github --username iperevoschikov --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text
 
       - name: Restore dependencies
         run: dotnet restore
