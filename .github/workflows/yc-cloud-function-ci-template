@@ -1,0 +1,107 @@
+name: Build and Deploy Yandex Cloud Function
+on:  
+  workflow_call:
+    inputs:
+      yc-bucket-name:
+        description: "Name of the bucket where binaries will be uploaded"
+        required: true
+        type: string
+      yc-folder-id:
+        description: "Id of the yandex cloud folder"
+        required: true
+        type: string
+      yc-service-account-id:
+        description: "Service account id which has permission to deploy functions"
+        required: true
+        type: string
+      yc-function-id:
+        description: "Id of the function to deploy"
+        required: true
+        type: string
+      yc-function-entrypoint:
+        description: "Name of the function entrypoint"
+        required: true
+        type: string
+      dotnet-project-name:
+        description: "Name of the project to build"
+        required: true
+        type: string
+
+    secrets:
+      YC_OAUTH_TOKEN:
+        required: true
+      AWS_ACCESS_KEY_ID:
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        required: true
+      FUNC_ENV_VARIABLES:
+        description: "Environment variables that will be passed to fucntion runtime. In JSON format"
+        required: false
+
+env:
+  ZIP_FILE: output.zip
+  YC_BUCKET_NAME: ${{ inputs.yc-bucket-name }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: "8.x"
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build project
+        run: dotnet publish ${{ inputs.dotnet-project-name }} -c Release -o output
+
+      - name: Set up AWS CLI and upload release
+        run: |
+          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws configure set default.region ru-central1
+          aws configure set default.s3.endpoint_url https://storage.yandexcloud.net
+          cd output 
+          zip -r $ZIP_FILE *
+          aws s3 cp $ZIP_FILE s3://$YC_BUCKET_NAME/$ZIP_FILE --acl private --endpoint-url https://storage.yandexcloud.net
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Prepare function environment variables
+        run: |
+          ENV_ARGS=""
+          if [[ -n '${{ secrets.FUNC_ENV_VARIABLES }}' ]]; then
+            echo "Processing environment variables..."
+            echo '${{ secrets.FUNC_ENV_VARIABLES }}' | jq -r 'to_entries | .[] | "--environment \(.key)=\(.value)"' > env_list.txt
+            ENV_ARGS=$(cat env_list.txt | tr '\n' ' ')
+          fi
+          echo "ENV_ARGS=$ENV_ARGS" >> $GITHUB_ENV
+
+      - name: Install Yandex Cloud CLI and deploy
+        run: |
+          curl https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash
+          echo 'export PATH=$HOME/yandex-cloud/bin:$PATH' >> $GITHUB_ENV
+          export PATH=$HOME/yandex-cloud/bin:$PATH
+          source $GITHUB_ENV
+          source ~/.bashrc
+          which yc
+          yc --version
+          yc config set token ${{ secrets.YC_OAUTH_TOKEN }}
+          yc serverless function version create \
+            --function-id ${{ inputs.yc-function-id }} \
+            --runtime dotnet8 \
+            --entrypoint ${{ inputs.yc-function-entrypoint }} \
+            --memory 128m \
+            --execution-timeout 600s \
+            --package-bucket-name $YC_BUCKET_NAME \
+            --package-object-name $ZIP_FILE \
+            --folder-id ${{ inputs.yc-folder-id }} \
+            --service-account-id ${{ inputs.yc-service-account-id }} \
+            $ENV_ARGS
