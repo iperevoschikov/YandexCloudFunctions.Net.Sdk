@@ -1,18 +1,15 @@
-﻿using System.Text.Json.Serialization;
+﻿// ReSharper disable InconsistentNaming
+
+#pragma warning disable CS8618
 
 namespace YandexCloudFunctions.Net.Sdk;
 
-public class FunctionHandlerRequest(
-    string httpMethod,
-    string body,
-    Dictionary<string, string> queryStringParameters)
+// ReSharper disable once ClassNeverInstantiated.Global
+public class FunctionHandlerRequest
 {
-    [JsonPropertyName("httpMethod")]
-    public string HttpMethod { get; init; } = httpMethod;
+    public string httpMethod { get; set; }
 
-    [JsonPropertyName("body")]
-    public string Body { get; init; } = body;
+    public string body { get; set; }
 
-    [JsonPropertyName("queryStringParameters")]
-    public Dictionary<string, string> QueryStringParameters { get; init; } = queryStringParameters;
+    public Dictionary<string, string> queryStringParameters { get; set; }
 }
