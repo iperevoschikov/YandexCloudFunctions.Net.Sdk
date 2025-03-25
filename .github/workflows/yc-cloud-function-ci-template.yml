@@ -83,6 +83,10 @@ jobs:
           if [[ -n '${{ secrets.FUNC_ENV_VARIABLES }}' ]]; then
             echo "Processing environment variables..."
             echo '${{ secrets.FUNC_ENV_VARIABLES }}' | jq -r 'to_entries | .[] | "--environment \(.key)=\(.value)"' > env_list.txt
+            while IFS= read -r line; do
+              value=$(echo "$line" | cut -d'=' -f2-)
+              echo "::add-mask::$value"
+            done < env_list.txt
             ENV_ARGS=$(cat env_list.txt | tr '\n' ' ')
           fi
           echo "ENV_ARGS=$ENV_ARGS" >> $GITHUB_ENV
@@ -98,7 +102,6 @@ jobs:
           yc --version
           yc config set token ${{ secrets.YC_OAUTH_TOKEN }}
           yc serverless function version create \
-            --no-user-output \
             --function-id ${{ inputs.yc-function-id }} \
             --runtime dotnet8 \
             --entrypoint ${{ inputs.yc-function-entrypoint }} \
