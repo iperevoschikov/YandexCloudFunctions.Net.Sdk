@@ -98,6 +98,7 @@ jobs:
           yc --version
           yc config set token ${{ secrets.YC_OAUTH_TOKEN }}
           yc serverless function version create \
+            --no-user-output \
             --function-id ${{ inputs.yc-function-id }} \
             --runtime dotnet8 \
             --entrypoint ${{ inputs.yc-function-entrypoint }} \
