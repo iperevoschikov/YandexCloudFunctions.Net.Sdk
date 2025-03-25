@@ -4,16 +4,14 @@ using Yandex.Cloud.Functions;
 
 namespace YandexCloudFunctions.Net.Sdk;
 
-/// <summary>
-/// Inheritors should implement HandleAsync method, which returns <![CDATA[Task<FunctionHandlerResponse>]]>
-/// Wrong implementation will cause runtime exception
-/// </summary>
-public abstract class BaseFunctionHandler : YcFunction<FunctionHandlerRequest, FunctionHandlerResponse>
+public abstract class BaseFunctionHandler(Delegate asyncHandler)
+    : YcFunction<FunctionHandlerRequest, FunctionHandlerResponse>
 {
     public FunctionHandlerResponse FunctionHandler(FunctionHandlerRequest request, Context context)
     {
         try
         {
+            Console.Out.WriteLine($"Received request: {System.Text.Json.JsonSerializer.Serialize(request)}");
             var services = new ServiceCollection();
             services
                 .AddLogging(b => b
@@ -23,9 +21,7 @@ public abstract class BaseFunctionHandler : YcFunction<FunctionHandlerRequest, F
             ConfigureServices(services);
 
             var serviceProvider = services.BuildServiceProvider();
-            var handleMethodInfo = GetType().GetMethod("HandleAsync");
-            if (handleMethodInfo == null)
-                throw new Exception("Could not find method named HandleAsync");
+            var handleMethodInfo = asyncHandler.Method;
             if (handleMethodInfo.ReturnType != typeof(Task<FunctionHandlerResponse>))
                 throw new Exception("HandleAsync should return Task<FunctionHandlerResponse>");
 
