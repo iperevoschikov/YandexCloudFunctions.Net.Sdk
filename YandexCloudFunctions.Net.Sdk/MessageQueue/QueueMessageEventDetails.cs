@@ -1,12 +1,8 @@
-﻿using System.Text.Json.Serialization;
+﻿namespace YandexCloudFunctions.Net.Sdk.MessageQueue;
 
-namespace YandexCloudFunctions.Net.Sdk.MessageQueue;
-
-public class QueueMessageEventDetails(string queueId, QueueMessageEventMessage message)
+public class QueueMessageEventDetails
 {
-    [JsonPropertyName("queue_id")]
-    public string QueueId { get; init; } = queueId;
+    public string queue_id { get; set; }
 
-    [JsonPropertyName("message")]
-    public QueueMessageEventMessage Message { get; init; } = message;
+    public QueueMessageEventMessage message { get; set; }
 }

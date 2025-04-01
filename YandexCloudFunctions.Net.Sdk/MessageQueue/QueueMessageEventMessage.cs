@@ -1,9 +1,6 @@
-﻿using System.Text.Json.Serialization;
+﻿namespace YandexCloudFunctions.Net.Sdk.MessageQueue;
 
-namespace YandexCloudFunctions.Net.Sdk.MessageQueue;
-
-public class QueueMessageEventMessage(string body)
+public class QueueMessageEventMessage
 {
-    [JsonPropertyName("body")]
-    public string Body { get; init; } = body;
+    public string body { get; set; }
 }
