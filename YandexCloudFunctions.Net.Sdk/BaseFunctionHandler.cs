@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Yandex.Cloud.Functions;
-using YandexCloudFunctions.Net.Sdk.Webhook;
 
 namespace YandexCloudFunctions.Net.Sdk;
 
@@ -24,8 +23,8 @@ public abstract class BaseFunctionHandler<TRequest, TResponse>(Delegate asyncHan
 
             var serviceProvider = services.BuildServiceProvider();
             var handleMethodInfo = asyncHandler.Method;
-            if (handleMethodInfo.ReturnType != typeof(Task<WebhookHandlerResponse>))
-                throw new Exception("HandleAsync should return Task<FunctionHandlerResponse>");
+            if (handleMethodInfo.ReturnType != typeof(Task<TResponse>))
+                throw new Exception("HandleAsync should return Task<TResponse>");
 
             var result = handleMethodInfo
                 .Invoke(
