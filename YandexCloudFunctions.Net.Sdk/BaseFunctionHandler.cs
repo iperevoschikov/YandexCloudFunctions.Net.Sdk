@@ -1,13 +1,15 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Yandex.Cloud.Functions;
+using YandexCloudFunctions.Net.Sdk.Webhook;
 
 namespace YandexCloudFunctions.Net.Sdk;
 
-public abstract class BaseFunctionHandler(Delegate asyncHandler)
-    : YcFunction<FunctionHandlerRequest, FunctionHandlerResponse>
+public abstract class BaseFunctionHandler<TRequest, TResponse>(Delegate asyncHandler)
+    : YcFunction<TRequest, TResponse>
+    where TRequest : class
 {
-    public FunctionHandlerResponse FunctionHandler(FunctionHandlerRequest request, Context context)
+    public TResponse FunctionHandler(TRequest request, Context context)
     {
         try
         {
@@ -22,7 +24,7 @@ public abstract class BaseFunctionHandler(Delegate asyncHandler)
 
             var serviceProvider = services.BuildServiceProvider();
             var handleMethodInfo = asyncHandler.Method;
-            if (handleMethodInfo.ReturnType != typeof(Task<FunctionHandlerResponse>))
+            if (handleMethodInfo.ReturnType != typeof(Task<WebhookHandlerResponse>))
                 throw new Exception("HandleAsync should return Task<FunctionHandlerResponse>");
 
             var result = handleMethodInfo
@@ -33,8 +35,8 @@ public abstract class BaseFunctionHandler(Delegate asyncHandler)
                         .Select(p => serviceProvider.GetRequiredService(p.ParameterType))
                         .ToArray());
 
-            if (result is not Task<FunctionHandlerResponse> task)
-                throw new Exception("HandleAsync should return Task<FunctionHandlerResponse>");
+            if (result is not Task<TResponse> task)
+                throw new Exception("HandleAsync should return Task<TResponse>");
 
             var response = task.GetAwaiter().GetResult();
             return response;
@@ -44,9 +46,11 @@ public abstract class BaseFunctionHandler(Delegate asyncHandler)
             Console
                 .Error
                 .WriteLine($"Exception occurred: {e.Message}, StackTrace: {e.StackTrace}");
-            return FunctionHandlerResponses.Fail();
+            return CreateFailResponse(e);
         }
     }
+
+    protected abstract TResponse CreateFailResponse(Exception exception);
 
     protected virtual void ConfigureServices(IServiceCollection serviceCollection)
     {

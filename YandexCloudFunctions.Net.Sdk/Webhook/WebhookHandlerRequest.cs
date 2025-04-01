@@ -2,10 +2,10 @@
 
 #pragma warning disable CS8618
 
-namespace YandexCloudFunctions.Net.Sdk;
+namespace YandexCloudFunctions.Net.Sdk.Webhook;
 
 // ReSharper disable once ClassNeverInstantiated.Global
-public class FunctionHandlerRequest
+public class WebhookHandlerRequest
 {
     public string httpMethod { get; set; }
 

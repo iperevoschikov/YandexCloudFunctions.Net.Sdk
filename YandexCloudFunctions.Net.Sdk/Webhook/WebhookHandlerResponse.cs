@@ -1,11 +1,11 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace YandexCloudFunctions.Net.Sdk;
+namespace YandexCloudFunctions.Net.Sdk.Webhook;
 
-public class FunctionHandlerResponse(
+public class WebhookHandlerResponse(
     int statusCode,
     string? body,
-    FunctionHandlerResponseHeaders headers,
+    WebhookHandlerResponseHeaders headers,
     bool isBase64Encoded = false)
 {
     [JsonPropertyName("statusCode")]
@@ -15,7 +15,7 @@ public class FunctionHandlerResponse(
     public string? Body { get; set; } = body;
 
     [JsonPropertyName("headers")]
-    public FunctionHandlerResponseHeaders Headers { get; set; } = headers;
+    public WebhookHandlerResponseHeaders Headers { get; set; } = headers;
 
     [JsonPropertyName("isBase64Encoded")]
     public bool IsBase64Encoded { get; set; } = isBase64Encoded;
